@@ -140,17 +140,22 @@ void Synth2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
     for (int i = 0; i < synth.getNumVoices(); ++i) {
-        if (auto voice = dynamic_cast<juce::SynthesiserVoice*>(synth.getVoice(i))) {
+        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i))) {
             // Osc controls
             // ADSR  attack decay sustain release
-            // LFP
+            // LFO
+
+            auto& attack = *apvts.getRawParameterValue("ATTACK");
+            auto& delay = *apvts.getRawParameterValue("DELAY");
+            auto& sustain = *apvts.getRawParameterValue("SUSTAIN");
+            auto& release = *apvts.getRawParameterValue("RELEASE");
+
+
+            voice->updateADSR(attack.load(), delay.load(), sustain.load(), release.load());
         }
     }
-
+    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
 //==============================================================================
