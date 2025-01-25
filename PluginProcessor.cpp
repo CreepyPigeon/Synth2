@@ -147,12 +147,12 @@ void Synth2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             // LFO
 
             auto& attack = *apvts.getRawParameterValue("ATTACK");
-            auto& delay = *apvts.getRawParameterValue("DELAY");
+            auto& decay = *apvts.getRawParameterValue("DECAY");
             auto& sustain = *apvts.getRawParameterValue("SUSTAIN");
             auto& release = *apvts.getRawParameterValue("RELEASE");
 
 
-            voice->updateADSR(attack.load(), delay.load(), sustain.load(), release.load());
+            voice->updateADSR(attack.load(), decay.load(), sustain.load(), release.load());
         }
     }
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
