@@ -152,7 +152,7 @@ void Synth2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             auto& release = *apvts.getRawParameterValue("RELEASE");
 
 
-            voice->updateADSR(attack.load(), decay.load(), sustain.load(), release.load());
+            voice->update(attack.load(), decay.load(), sustain.load(), release.load());
         }
     }
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
