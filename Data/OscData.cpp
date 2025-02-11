@@ -1,5 +1,9 @@
 #include "OscData.h"
 
+void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec) {
+    prepare(spec);
+}
+
 void OscData::setWaveType(const int choice) {
     //juce::dsp::Oscillator<float> osc{ [](float x) {return std::sin(x); }, 200 }; // sine
 //juce::dsp::Oscillator<float> osc{ [](float x) {return x / juce::MathConstants<float>::pi; }, 201 }; // saw
@@ -21,4 +25,13 @@ void OscData::setWaveType(const int choice) {
         break;
     }
 
+}
+
+void OscData::setWaveFrequency(const int midiNoteNumber) {
+    setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber));
+}
+
+void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
+{
+    process(juce::dsp::ProcessContextReplacing<float>(block));
 }
