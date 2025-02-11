@@ -46,6 +46,11 @@ void SynthVoice::update(const float attack, const float decay, const float susta
     adsr.updateADSR(attack, decay, sustain, release);
 }
 
+OscData& SynthVoice::getOscillator() {
+    return osc;
+}
+
+
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) {
     jassert(isPrepared);
 

@@ -3,14 +3,10 @@
 
 //==============================================================================
 Synth2AudioProcessorEditor::Synth2AudioProcessorEditor (Synth2AudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), adsr(audioProcessor.apvts)
+    : AudioProcessorEditor (&p), audioProcessor (p),osc(audioProcessor.apvts, "OSC1WAVETYPE"), adsr(audioProcessor.apvts)
 {
-
     setSize (500, 400);
-
-    
-    oscSelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "OSC", oscSelector);
-
+    addAndMakeVisible(osc);
     addAndMakeVisible(adsr);
 }
 
@@ -31,5 +27,6 @@ void Synth2AudioProcessorEditor::paint (juce::Graphics& g)
 
 void Synth2AudioProcessorEditor::resized()
 {
+    osc.setBounds(10, 10, 100, 30);
     adsr.setBounds(getWidth()/2, 0, getWidth()/2, getHeight());
 }
