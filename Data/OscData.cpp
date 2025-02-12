@@ -2,14 +2,10 @@
 
 void OscData::prepareToPlay(juce::dsp::ProcessSpec& spec) {
     prepare(spec);
+    fmOsc.prepare(spec);
 }
 
 void OscData::setWaveType(const int choice) {
-    //juce::dsp::Oscillator<float> osc{ [](float x) {return std::sin(x); }, 200 }; // sine
-//juce::dsp::Oscillator<float> osc{ [](float x) {return x / juce::MathConstants<float>::pi; }, 201 }; // saw
-//juce::dsp::Oscillator<float> osc{ [](float x) {return x < 0.0f ? -1.0f : 1.0f; }}; // square
-    juce::dsp::Oscillator<float> osc{ [](float x) { return x / juce::MathConstants<float>::pi; } };
-
     switch (choice) {
     case 0:  // sine wave
         initialise([](float x) { return std::sin(x); });
@@ -24,14 +20,34 @@ void OscData::setWaveType(const int choice) {
         jassertfalse;  // something failed
         break;
     }
+}
 
+void OscData::processFmOsc(juce::dsp::AudioBlock<float>& block)
+{
+    for (int ch = 0; ch < block.getNumChannels(); ++ch)
+    {
+        for (int s = 0; s < block.getNumSamples(); ++s)
+        {
+            fmMod = fmOsc.processSample(block.getSample(ch, s)) * fmDepth;
+        }
+    }
+}
+
+
+void OscData::updateFm(const float freq, const float depth)
+{
+    fmOsc.setFrequency(freq);
+    fmDepth = depth;
+    setFrequency(juce::MidiMessage::getMidiNoteInHertz(lastMidiNote) + fmMod);
 }
 
 void OscData::setWaveFrequency(const int midiNoteNumber) {
-    setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber));
+    setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber) + fmMod);
+    lastMidiNote = midiNoteNumber; 
 }
 
 void OscData::getNextAudioBlock(juce::dsp::AudioBlock<float>& block)
 {
+    processFmOsc(block);
     process(juce::dsp::ProcessContextReplacing<float>(block));
 }
