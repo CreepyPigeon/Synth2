@@ -11,16 +11,8 @@ OscComponent::OscComponent(juce::AudioProcessorValueTreeState& apvts, juce::Stri
     addAndMakeVisible(oscWaveSelector);
     oscWaveSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(apvts, waveSelectorId, oscWaveSelector);
 
-    fmFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    fmFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 25);
-    addAndMakeVisible(fmFreqSlider);
-
-    fmFreqAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, fmFreqId, fmFreqSlider);
-
-    fmFreqLabel.setColour(juce::Label::ColourIds::textColourId, juce::Colours::white);
-    fmFreqLabel.setJustificationType(juce::Justification::centred);
-    fmFreqLabel.setFont(15.0f);
-    addAndMakeVisible(fmFreqLabel);
+    setSliderWithLabel(fmFreqSlider, fmFreqLabel, apvts, fmFreqId, fmFreqAttachment);
+    setSliderWithLabel(fmDepthSlider, fmDepthLabel, apvts, fmDepthId, fmDepthAttachment);
 }
 
 OscComponent::~OscComponent()
@@ -36,8 +28,32 @@ void OscComponent::paint (juce::Graphics& g)
 
 void OscComponent::resized()
 {
-    oscWaveSelector.setBounds(0, 0, 90, 20);
-    fmFreqSlider.setBounds(0, 80, 100, 90);
-    fmFreqLabel.setBounds(fmFreqSlider.getX(), fmFreqSlider.getY() - 20, fmFreqSlider.getWidth(), 20);
+    const auto sliderPosY = 80;
+    const auto sliderWidth = 100;
+    const auto sliderHeight = 90;
+    const auto labelYOffset = 20;
+    const auto labelHeight = 20;
 
+    oscWaveSelector.setBounds(0, 0, 90, 20);
+    fmFreqSlider.setBounds(0, sliderPosY, sliderWidth, sliderHeight);
+    fmFreqLabel.setBounds(fmFreqSlider.getX(), fmFreqSlider.getY() - labelYOffset , fmFreqSlider.getWidth(), labelHeight);
+
+    fmDepthSlider.setBounds(fmFreqSlider.getRight(), sliderPosY, sliderWidth, sliderHeight);
+    fmDepthLabel.setBounds(fmDepthSlider.getX(), fmDepthSlider.getY() - labelYOffset, fmDepthSlider.getWidth(), labelHeight);
+}
+
+using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+
+void OscComponent::setSliderWithLabel(juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts,juce::String paramId, std::unique_ptr<Attachment>& attachment)
+{
+    slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 25);
+    addAndMakeVisible(slider);
+
+    attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, paramId, slider);
+
+    label.setColour(juce::Label::ColourIds::textColourId, juce::Colours::white);
+    label.setJustificationType(juce::Justification::centred);
+    label.setFont(15.0f);
+    addAndMakeVisible(label);
 }

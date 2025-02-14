@@ -23,6 +23,6 @@ void Synth2AudioProcessorEditor::paint (juce::Graphics& g)
 
 void Synth2AudioProcessorEditor::resized()
 {
-    osc.setBounds(10, 10, 175, 200);
+    osc.setBounds(10, 10, 200, 300);
     adsr.setBounds(getWidth()/2, 0, getWidth()/2, getHeight());
 }
