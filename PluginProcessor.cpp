@@ -97,6 +97,8 @@ void Synth2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
             voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
         }
     }
+
+    filter.prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 }
 
 void Synth2AudioProcessor::releaseResources()
@@ -162,6 +164,15 @@ void Synth2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         }
     }
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+
+    auto& filterType = *apvts.getRawParameterValue("FILTERTYPE");
+    auto& cutoff = *apvts.getRawParameterValue("FILTERCUTOFF");
+    auto& resonance = *apvts.getRawParameterValue("FILTERRES");
+
+    filter.updateParameters(filterType, cutoff, resonance);
+    filter.process(buffer);
+
 }
 
 //==============================================================================
@@ -217,6 +228,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout Synth2AudioProcessor::create
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f}, 0.1f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f}, 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float> { 0.0f, 3.0f, 0.01f}, 0.4f));
+
+    // Filter
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FILTERTYPE", "Filter Type", juce::StringArray{ "Low-Pass", "Band-Pass", "High-Pass" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("FILTERCUTOFF", "Filter Cutoff", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.01f, 0.6f}, 20000.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("FILTERRES", "Filter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.01f}, 1.0f));
+
 
     return { params.begin(), params.end() };
 }
